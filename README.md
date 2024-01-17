@@ -7,7 +7,7 @@
   * [Levels of priority](#levels-of-priority)
   * [OpenSCAP](#openscap)
 - **[Partitioning](#partitioning)**
-  * [Separate Volumes](#Separate\ Volumes)
+  * [Separate Volumes](#separate-volumes)
   * [Restrict mount options](#restrict-mount-options)
   * [Polyinstantiated directories](#polyinstantiated-directories)
   * [Shared memory](#shared-memory)
