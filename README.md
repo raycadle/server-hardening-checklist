@@ -1,4 +1,5 @@
-# Table of Contents
+# Server Hardening Checklist
+## Table of Contents
 
 - **[Introduction](#introduction)**
   * [Status](#status)
@@ -49,14 +50,14 @@
 - **[Services](#services)**
 - **[Tools](#tools)**
 
-# Introduction
+## Introduction
 
   > [!Note]
   > In computing, **hardening** is usually the process of securing a system by reducing its surface of vulnerability, which is larger when a system performs more functions; in principle a single-function system is more secure than a multipurpose one. The main goal of systems hardening is to reduce security risk by eliminating potential attack vectors and condensing the system’s attack surface.
 
 This list contains the most important hardening rules for GNU/Linux systems.
 
-## Status
+### Status
 
 Still work in progress...
 
@@ -79,7 +80,7 @@ Still work in progress...
 16. Disable root login.
 17. Reboot
 
-## Todo
+### Todo
 
 - [ ] Add rationale (e.g. url's, external resources)
 - [ ] Review levels of priority
@@ -88,7 +89,7 @@ Still work in progress...
 
 I'm not advocating throwing your existing hardening and deployment best practices out the door but I recommend is to always turn a feature from this checklist on in pre-production environments instead of jumping directly into production.
 
-## Levels of Priority
+### Levels of Priority
 
 All items in this checklist have a priority level:
 
@@ -96,7 +97,7 @@ All items in this checklist have a priority level:
 * ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) This item **should** be implemented.
 * ![Static Badge](https://img.shields.io/badge/Priority-High-red) This item **must** be implemented.
 
-## OpenSCAP
+### OpenSCAP
 
 ![[openscap_logo.png]]
 **SCAP** (*Security Content Automation Protocol*) provides a mechanism to check configurations, manage vulnerability, and evaluate policy compliance for a variety of systems. One of the most popular implementations of SCAP is **OpenSCAP**, and it is very helpful for vulnerability assessment and hardening.
@@ -105,11 +106,11 @@ Some of the external audit tools use this standard. For example, Nessus has func
 
   > I tried to make this list compatible with OpenSCAP standard and rules. However, there may be differences.
 
-# Partitioning
+## Partitioning
 
 We will use logical volumes inside a single encrypted partition to keep our setup simple. This is known as LVM on LUKS, which uses a single encryption key to unlock our disk—as opposed to individual keys per partition.
 
-## Encrypt Partitions
+### Encrypt Partitions
 
 - ![High Priority](https://img.shields.io/badge/Priority-High-red)
 
@@ -126,19 +127,19 @@ We will use logical volumes inside a single encrypted partition to keep our setu
     ```
 
 
-## Separate Volumes
+### Separate Volumes
 
 - ![Medium Priority](https://img.shields.io/badge/Priority-Medium-yellow)
 
 Critical system directories should be separated as much as practically possible. This compartmentalization allows granular disk space allocation as well as the ability to apply granular security options to the mounts.
 
-## Restrict Mount Options
+### Restrict Mount Options
 
 - ![Medium Priority](https://img.shields.io/badge/Priority-Medium-yellow)
 
 Mount options for all separately mounted directories should be restricted as much as practically possible.
 
-## Recommended Setup
+### Recommended Setup
 Below is a recommended baseline for secure volume mounts:
 
 | Mount Point | Size | Filesystem | Options |
@@ -154,7 +155,7 @@ Below is a recommended baseline for secure volume mounts:
 | `swap` | 10% | swap |  |
 | `/` | 100%FREE | ext4 | `defaults` |
 
-### Polyinstantiated Directories
+#### Polyinstantiated Directories
 #ToDo 
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Setting up polyinstantiated `/tmp` and `/var/tmp` directories.
@@ -174,7 +175,7 @@ Below is a recommended baseline for secure volume mounts:
     chcon --reference=/var/tmp/ /var/tmp/tmp-inst
     ```
 
-### System Processes
+#### System Processes
 System processes should only be visible to members of the `proc` group.
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) `/proc`
@@ -183,7 +184,7 @@ System processes should only be visible to members of the `proc` group.
     proc  /proc  proc  defaults,hidepid=2,gid=proc  0 0
     ```
 
-### Shared Memory
+#### Shared Memory
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) `/dev/shm`
     **Example:**
@@ -191,12 +192,12 @@ System processes should only be visible to members of the `proc` group.
     tmpfs  /dev/shm  tmpfs  rw,nodev,nosuid,noexec,size=1024M,mode=1770,uid=root,gid=shm 0 0
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Physical Access
+## Physical Access
 
-## Protect Single User Mode
+### Protect Single User Mode
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Protect Single User Mode with root password.
 
@@ -207,11 +208,11 @@ System processes should only be visible to members of the `proc` group.
     SINGLE=/sbin/sulogin
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Bootloader
-## Protect Bootloader Configuration
+## Bootloader
+### Protect Bootloader Configuration
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Ensure bootloader config files are set properly permissions.
 
@@ -227,11 +228,11 @@ System processes should only be visible to members of the `proc` group.
     chmod -R og-rwx /etc/grub.d
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Linux Kernel
-## Kernel logs
+## Linux Kernel
+### Kernel logs
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Restricting access to kernel logs.
 
@@ -241,7 +242,7 @@ System processes should only be visible to members of the `proc` group.
     echo "kernel.dmesg_restrict = 1" > /etc/sysctl.d/50-dmesg-restrict.conf
     ```
 
-## Kernel pointers
+### Kernel pointers
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Restricting access to kernel pointers.
 
@@ -251,7 +252,7 @@ System processes should only be visible to members of the `proc` group.
     echo "kernel.kptr_restrict = 1" > /etc/sysctl.d/50-kptr-restrict.conf
     ```
 
-## ExecShield
+### ExecShield
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) ExecShield protection.
 
@@ -261,7 +262,7 @@ System processes should only be visible to members of the `proc` group.
     echo "kernel.exec-shield = 2" > /etc/sysctl.d/50-exec-shield.conf
     ```
 
-## Memory protections
+### Memory protections
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Randomise memory space.
 
@@ -269,7 +270,7 @@ System processes should only be visible to members of the `proc` group.
     echo "kernel.randomize_va_space=2" > /etc/sysctl.d/50-rand-va-space.conf
     ```
 
-## Modules
+### Modules
    - Disable USB:
         - `# echo "install usb-storage /bin/false" >> /etc/modprobe.d/disable-modules.conf`
     - Disable other unused modules:
@@ -319,11 +320,11 @@ System processes should only be visible to members of the `proc` group.
         done
         ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Logging
-## Syslog
+## Logging
+### Syslog
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Ensure syslog service is enabled and running.
 
@@ -345,19 +346,19 @@ System processes should only be visible to members of the `proc` group.
     # ...
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Users and Groups
-## Create Users
+## Users and Groups
+### Create Users
     - `# useradd -m -s /bin/bash -G wheel admin && passwd admin`
     - `# useradd -m -s /bin/bash -G users user && passwd user`
 
-## Configure PAM
+### Configure PAM
     - Use `pam_pwquality` to enforce a secure policy for passwords:
         - `# { echo "password required pam_unix.so use_authtok sha512 shadow rounds=65536"; echo "password required pam_pwquality.so retry=2 minlen=15 difok=8 dcredit=-3 ucredit=-2 lcredit=-2 ocredit=-3 enforce_for_root"; } >> /etc/pam.d/passwd`
 
-## Passwords
+### Passwords
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Update password policy (PAM).
 
@@ -402,7 +403,7 @@ System processes should only be visible to members of the `proc` group.
     PASS_WARN_AGE 14
     ```
 
-## Logon Access
+### Logon Access
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Set auto logout inactive users.
 
@@ -440,25 +441,25 @@ System processes should only be visible to members of the `proc` group.
     account required pam_faillock.so
     ```
 
-## Restrict `su` Access
+### Restrict `su` Access
 - Restrict usage to only the `wheel` group:
 `# echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su`
 `# echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su-l`
 - Require authentication for su:
 `# sed -i -e '/SINGLE/s/sushell/sulogin/' -e '/PROMPT/s/yes/no/' /etc/sysconfig/init`
 
-## Lock `root` Account
+### Lock `root` Account
 - Lock root account:
 `$ sudo passwd -l root`
 - Remove login shell:
 `$ sudo sed -i '|^root.*|s|/bin/bash|/sbin/nologin|' /etc/password`
 
-## Section Checklist
+### Section Checklist
 
 
-# Filesystem
+## Filesystem
 
-## Hardlinks & Symlinks
+### Hardlinks & Symlinks
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Low-green) Enable hard/soft link protection.
 
@@ -469,7 +470,7 @@ System processes should only be visible to members of the `proc` group.
     echo "fs.protected_symlinks = 1" >> /etc/sysctl.d/50-fs-hardening.conf
     ```
 
-## Dynamic Mounting and Unmounting
+### Dynamic Mounting and Unmounting
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Disable uncommon filesystems.
 
@@ -490,10 +491,10 @@ System processes should only be visible to members of the `proc` group.
     echo "install gfs2 /bin/false" > /etc/modprobe.d/uncommon-fs.conf
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Permissions
+## Permissions
 - Set a restrictive default umask:
     - `# echo "umask 0077" >> /etc/bash.bashrc`
 - Verify that no files are ownerless:
@@ -504,8 +505,8 @@ System processes should only be visible to members of the `proc` group.
     - `# find / -type f \( -perm -4000 -o -perm -2000 \) -print`
     - `# chmod g-s $path_to_program`
 
-# SELinux & Auditd
-## SELinux Enforcing
+## SELinux & Auditd
+### SELinux Enforcing
 
 - ![Static Badge](https://img.shields.io/badge/Priority-High-red) Set SELinux Enforcing mode.
 
@@ -515,15 +516,15 @@ System processes should only be visible to members of the `proc` group.
     SELINUXTYPE=enforcing
     ```
 
-## Auditd
+### Auditd
 
-## Section Checklist
+### Section Checklist
 
 
-# System Updates
+## System Updates
 
-# Network
-## TCP/SYN
+## Network
+### TCP/SYN
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Enable TCP SYN Cookie protection.
 
@@ -533,7 +534,7 @@ System processes should only be visible to members of the `proc` group.
     echo "net.ipv4.tcp_syncookies = 1" > /etc/sysctl.d/50-net-stack.conf
     ```
 
-## Routing
+### Routing
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Disable IP source routing.
 
@@ -543,7 +544,7 @@ System processes should only be visible to members of the `proc` group.
     echo "net.ipv4.conf.all.accept_source_route = 0" > /etc/sysctl.d/50-net-stack.conf
     ```
 
-## ICMP Protocol
+### ICMP Protocol
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Disable ICMP redirect acceptance.
 
@@ -561,7 +562,7 @@ System processes should only be visible to members of the `proc` group.
     echo "net.ipv4.icmp_echo_ignore_all = 1" > /etc/sysctl.d/50-net-stack.conf
     ```
 
-## Broadcast
+### Broadcast
 
 - ![Static Badge](https://img.shields.io/badge/Priority-Medium-yellow) Enable ignoring broadcasts request.
 
@@ -571,11 +572,11 @@ System processes should only be visible to members of the `proc` group.
     echo "net.ipv4.icmp_echo_ignore_broadcasts = 1" > /etc/sysctl.d/50-net-stack.conf
     ```
 
-## Section Checklist
+### Section Checklist
 
 
-# Services
-## Securing SSHd
+## Services
+### Securing SSHd
 Edit `/etc/ssh/sshd_config` to harden the sshd service, if running.
 
 - Change to a non-standard port (security by obscurity; mainly helps against bot scans on internet-facing servers):
@@ -598,8 +599,8 @@ Edit `/etc/ssh/sshd_config` to harden the sshd service, if running.
 - Set a banner in `/etc/issue` then activate it in sshd_config (mostly cosmetic):
     - `Banner /etc/issue.net`
 
-# Tools
-## Useful Tools
+## Tools
+### Useful Tools
 Fail2ban – a great tool for automatically banning suspicious IP addresses.
 ClamAV – an open-source antivirus engine.
 Lynis – open-source auditing tool for Linux
@@ -608,7 +609,7 @@ SATAN – netwrok scanner
 ISS (internet security scanner)
 SNORT
 
-## Other Notes
+### Other Notes
 Ways to access root:
 - login at tty
 - while logged in as a user, run `su` and use the root password
