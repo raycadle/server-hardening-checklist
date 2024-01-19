@@ -1,4 +1,3 @@
-# Server Hardening Checklist
 ## Table of Contents
 
 - **[Introduction](#introduction)**
