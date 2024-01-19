@@ -1,3 +1,5 @@
+This checklist assumes that you are using a Linux-based server, and have physical and root-level access to the machine.
+
 ## Table of Contents
 
 - **[Introduction](#introduction)**
